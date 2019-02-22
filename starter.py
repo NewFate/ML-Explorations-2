@@ -68,19 +68,26 @@ def CE(target, prediction):
     # TODO
 
 def main():
-    x = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0]
-    print(x)
-    #relu(x)
-    x = softmax(x)
-    print(x)
+    trainData, validData, testData, trainTarget, validTarget, testTarget = loadData();
+
+    trainData = np.reshape(trainData,(10000, 784))  
+    validData = np.reshape(validData, (6000, 784))    
+    testData = np.reshape(testData, (2724, 784))
     
-    predictions = np.array([[0.25,0.25,0.25,0.25],
-                        [0.01,0.01,0.01,0.96]])
-    targets = np.array([[0,0,0,1],
-                       [0,0,0,1]])
-    ans = 0.71355817782  #Correct answer
-    test = CE(predictions, targets)
-    print(test)
+    print("Train Data shape:", trainData.shape)
+    print("Train Target shape:", trainTarget.shape)
+    print("Valid Data shape:", validData.shape)
+    print("Valid Target shape:", validTarget.shape)
+    print("Test Data shape:", testData.shape)
+    print("Test Target shape:", testTarget.shape)
+    
+    #One hot encoding
+    trainTarget, validTarget, testTarget = convertOneHot(trainTarget, validTarget, testTarget)
+    print(trainTarget)
+    print("Train Target encoded shape: ", trainTarget.shape)
+    print("Valid Target encoded shape: ", validTarget.shape)
+    print("Test Target encoded shape: ", testTarget.shape)  
+
     
     
 if __name__ == "__main__":
