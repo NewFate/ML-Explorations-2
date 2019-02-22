@@ -48,6 +48,8 @@ def relu(x):
 
 def softmax(x):
     # TODO
+    exps = np.exp(x)
+    return exps / np.sum(exps)
 
 
 def computeLayer(X, W, b):
