@@ -44,10 +44,12 @@ def shuffle(trainData, trainTarget):
 
 
 def relu(x):
-    x[x<0] = 0;
+    x[x<0] = 0
+    return x
 
-#def softmax(x):
-    # TODO
+def softmax(x):
+    exps = np.exp(x)
+    return exps / np.sum(exps)
 
 
 #def computeLayer(X, W, b):
@@ -62,9 +64,10 @@ def relu(x):
     # TODO
 
 def main():
-    x = np.random.random((5,5)) - 0.5
+    x = [1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0]
     print(x)
-    relu(x)
+    #relu(x)
+    x = softmax(x)
     print(x)    
     
     
