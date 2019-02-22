@@ -48,7 +48,6 @@ def relu(x):
     return x
 
 def softmax(x):
-    # TODO
     exps = np.exp(x)
     return exps / np.sum(exps)
 
@@ -56,9 +55,13 @@ def softmax(x):
 def computeLayer(X, W, b):
     return np.matmul(W, X) + b
 
-#def CE(target, prediction):
-
-    # TODO
+def CE(target, prediction):
+    newP = softmax(prediction)
+    m = target.shape[0]
+    log_likelihood = -np.log(newP[range(m),target])
+    loss = np.sum(log_likelihood) / m
+    return loss
+    
 
 #def gradCE(target, prediction):
 
@@ -69,7 +72,15 @@ def main():
     print(x)
     #relu(x)
     x = softmax(x)
-    print(x)    
+    print(x)
+    
+    predictions = np.array([[0.25,0.25,0.25,0.25],
+                        [0.01,0.01,0.01,0.96]])
+    targets = np.array([[0,0,0,1],
+                       [0,0,0,1]])
+    ans = 0.71355817782  #Correct answer
+    test = CE(predictions, targets)
+    print(test)
     
     
 if __name__ == "__main__":
