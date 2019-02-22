@@ -75,11 +75,11 @@ def main():
     print(x)
     
     predictions = np.array([[0.25,0.25,0.25,0.25],
-                        [0.01,0.01,0.01,0.96]])
-    targets = np.array([[0,0,0,1],
-                       [0,0,0,1]])
+                        [0.1,0.2,0.3,0.4]])
+    targets = np.array([[1],
+                       [1]])
     ans = 0.71355817782  #Correct answer
-    test = CE(predictions, targets)
+    test = CE(targets, predictions)
     print(test)
     
     
