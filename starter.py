@@ -44,20 +44,29 @@ def shuffle(trainData, trainTarget):
 
 
 def relu(x):
+    x[x<0] = 0;
+
+#def softmax(x):
     # TODO
 
-def softmax(x):
+
+#def computeLayer(X, W, b):
     # TODO
 
-
-def computeLayer(X, W, b):
-    # TODO
-
-def CE(target, prediction):
-
-    # TODO
-
-def gradCE(target, prediction):
+#def CE(target, prediction):
 
     # TODO
 
+#def gradCE(target, prediction):
+
+    # TODO
+
+def main():
+    x = np.random.random((5,5)) - 0.5
+    print(x)
+    relu(x)
+    print(x)    
+    
+    
+if __name__ == "__main__":
+    main()
