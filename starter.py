@@ -53,8 +53,8 @@ def softmax(x):
     return exps / np.sum(exps)
 
 
-#def computeLayer(X, W, b):
-    # TODO
+def computeLayer(X, W, b):
+    return np.matmul(W, X) + b
 
 #def CE(target, prediction):
 
