@@ -46,6 +46,7 @@ def shuffle(trainData, trainTarget):
 def relu(x):
     x[x<0] = 0;
 
+def softmax(x):
     # TODO
     exps = np.exp(x)
     return exps / np.sum(exps)
