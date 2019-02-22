@@ -47,12 +47,7 @@ def relu(x):
     x[x<0] = 0
     return x
 
-<<<<<<< HEAD
 def softmax(x):
-=======
-#def softmax(x):
-    # TODO
->>>>>>> origin/master
     exps = np.exp(x)
     return exps / np.sum(exps)
 
