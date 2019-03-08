@@ -63,9 +63,9 @@ def CE(target, prediction):
     return loss
     
 
-#def gradCE(target, prediction):
-
-    # TODO
+def gradCE(target, prediction):
+    np.apply_along_axis(softmax, 0, prediction)
+    return (-1)*np.sum(target/prediction)
 
 def main():
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData();
