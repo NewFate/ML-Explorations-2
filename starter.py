@@ -87,6 +87,13 @@ def main():
     print("Train Target encoded shape: ", trainTarget.shape)
     print("Valid Target encoded shape: ", validTarget.shape)
     print("Test Target encoded shape: ", testTarget.shape)  
+    
+    #neural network
+    #layer 1 (inputs)
+    
+    #Layer 2 (variable, hidden layer)
+    
+    #Layer 3 (output)
 
     
     
