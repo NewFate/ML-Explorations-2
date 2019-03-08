@@ -89,11 +89,11 @@ def main():
     print("Test Target encoded shape: ", testTarget.shape)  
     
     #neural network
-    #layer 1 (inputs)
+    #layer 1 (inputs, shape is 784x1 or 10000x784) this is our training data
     
-    #Layer 2 (variable, hidden layer)
+    #Layer 2 (variable, hidden layer, shape is 1000x1)
     
-    #Layer 3 (output)
+    #Layer 3 (output, shape is 784x10 or 10000x10)
 
     
     
