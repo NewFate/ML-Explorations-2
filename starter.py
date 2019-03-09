@@ -53,7 +53,7 @@ def softmax(x):
 
 
 def computeLayer(X, W, b):
-    return np.matmul(W, X) + b
+    return np.matmul(X, W) + b
 
 def CE(target, prediction):
     newP = softmax(prediction)
@@ -67,8 +67,24 @@ def gradCE(target, prediction):
     np.apply_along_axis(softmax, 0, prediction)
     return (-1)*np.sum(target/prediction)
 
+def frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output):
+    #Hidden layer computation
+    hidden_layer = computeLayer(trainData, weight_hidden, bias_hidden)
+    hidden_layer_activation = relu(hidden_layer)
+    
+    #Ouput layer computation
+    output_layer = computeLayer(hidden_layer_activation, weight_output, bias_output)
+    output_layer_activation = softmax(output_layer)
+    
+    y_predict = output_layer_activation
+    loss = CE(trainTarget, y_predict)
+    
+    return loss, y_predict
+    
+
 def main():
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData();
+    
 
     trainData = np.reshape(trainData,(10000, 784))  
     validData = np.reshape(validData, (6000, 784))    
@@ -81,20 +97,43 @@ def main():
     print("Test Data shape:", testData.shape)
     print("Test Target shape:", testTarget.shape)
     
+    print(trainTarget)
+    
     #One hot encoding
     trainTarget, validTarget, testTarget = convertOneHot(trainTarget, validTarget, testTarget)
-    print(trainTarget)
+    #print(trainData)
     print("Train Target encoded shape: ", trainTarget.shape)
     print("Valid Target encoded shape: ", validTarget.shape)
     print("Test Target encoded shape: ", testTarget.shape)  
     
     #neural network
-    #layer 1 (inputs, shape is 784x1 or 10000x784) this is our training data
     
-    #Layer 2 (variable, hidden layer, shape is 1000x1)
+    #Hidden layer
     
-    #Layer 3 (output, shape is 784x10 or 10000x10)
+    #Hidden layer weight initialisation
+    units_in = 10000
+    units_out = 1000
+    w_hidden = np.random.rand((784000))*np.sqrt(2/(units_in+units_out))
+    w_hidden = w_hidden.reshape(784, 1000)
+    #print(w_hidden)
+    
+    #Hidden layer bias iniatilisation
+    b_hidden = np.ones((1, 1000))
+     
+    #Output layer weight initialization
+    units_in = 1000
+    units_out = 10000
+    w_output = np.random.rand((10000))*np.sqrt(2/(units_in+units_out))
+    w_output = w_output.reshape(1000, 10)
+    #print(w_output)
+    
+    #Output layer bias initialization
+    b_output = np.ones((1, 10))
+    #print(b_output)
+    
+    #Front Propagation
 
+    
     
     
 if __name__ == "__main__":
