@@ -47,11 +47,18 @@ def relu(x):
     x[x<0] = 0
     return x
 
+def relu_grad(x):
+    x[x<0] = 0
+    return x
 
 def softmax(x):
     exps = np.exp(x)
     return exps / np.sum(exps)
 
+def softmax_grad(softmax):
+    # Reshape the 1-d softmax to 2-d so that np.dot will do the matrix multiplication
+    s = softmax.reshape(-1,1)
+    return np.diagflat(s) - np.dot(s, s.T)
 
 def computeLayer(X, W, b):
     return np.matmul(X, W) + b
