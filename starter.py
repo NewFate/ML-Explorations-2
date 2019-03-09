@@ -47,6 +47,7 @@ def relu(x):
     x[x<0] = 0
     return x
 
+
 def softmax(x):
     exps = np.exp(x)
     return exps / np.sum(exps)
@@ -55,17 +56,26 @@ def softmax(x):
 def computeLayer(X, W, b):
     return np.matmul(X, W) + b
 
-def CE(target, prediction):
-    newP = softmax(prediction)
-    m = target.shape[0]
-    log_likelihood = -np.log(newP[range(m),target])
-    loss = np.sum(log_likelihood) / m
-    return loss
-    
 
+def CE(target, prediction):
+    log_likelihood = np.log(prediction)
+    loss = -np.sum(log_likelihood*target) / target.shape[0]
+    return loss
+ 
+    
 def gradCE(target, prediction):
     np.apply_along_axis(softmax, 0, prediction)
     return (-1)*np.sum(target/prediction)
+
+
+def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output, epochs):
+    #Accuracy need to complete
+    accuracy = 0
+    
+    
+    loss, y_predict = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+    return y_predict, loss, accuracy
+
 
 def frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output):
     #Hidden layer computation
@@ -119,6 +129,8 @@ def main():
     
     #Hidden layer bias iniatilisation
     b_hidden = np.ones((1, 1000))
+    
+    #Ouput layer
      
     #Output layer weight initialization
     units_in = 1000
@@ -131,9 +143,9 @@ def main():
     b_output = np.ones((1, 10))
     #print(b_output)
     
-    #Front Propagation
-
-    
+    #Gradient Descent with momentum
+    y_predict, loss, accuracy = gradientDescentMomentum(trainData, trainTarget, w_hidden, w_output, b_hidden, b_output)
+    print(loss)
     
     
 if __name__ == "__main__":
