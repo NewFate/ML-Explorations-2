@@ -57,7 +57,9 @@ def softmax(x):
 
 def softmax_grad(softmax):
     # Reshape the 1-d softmax to 2-d so that np.dot will do the matrix multiplication
+    print(softmax.shape)
     s = softmax.reshape(-1,1)
+    print(s.shape)
     return np.diagflat(s) - np.dot(s, s.T)
 
 def computeLayer(X, W, b):
@@ -71,8 +73,9 @@ def CE(target, prediction):
  
     
 def gradCE(target, prediction):
-    np.apply_along_axis(softmax, 0, prediction)
-    return (-1)*np.sum(target/prediction)
+	#print("Here0")
+	np.apply_along_axis(softmax, 0, prediction)
+	return (-1)*np.sum(target/prediction)
 
 
 def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output, epochs):
@@ -92,11 +95,11 @@ def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output
     while i < epochs:
         
         #Run front propagation
-        loss, y_predict, output_layer, hidden_layer = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+        loss, y_predict, output_layer, hidden_layer, hidden_layer_activation = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
         
         print("Loss: ",loss)
     
-        dL_dWo, dL_dWh = backPropagation(trainTarget, y_predict, output_layer, hidden_layer, weight_output)
+        dL_dWo, dL_dWh = backPropagation(trainData, trainTarget, y_predict, output_layer, hidden_layer, hidden_layer_activation, weight_output)
         
         #Momentum based updates
         
@@ -113,15 +116,18 @@ def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output
     return y_predict, loss, accuracy
 
 
-def backPropagation(trainTarget, y_predict, output_layer, hidden_layer, weight_hidden):
-    
-    #Calculate the deltas
-    delta_3 = gradCE(trainTarget, y_predict)*softmax_grad(y_predict)
-    delta_2 = delta_3*weight_hidden*relu_grad(hidden_layer)
+def backPropagation(trainData, trainTarget, y_predict, output_layer, hidden_layer, hidden_layer_activation, weight_output):
     
     #Calculate the partial derivatives
-    dL_dWo = y_predict*delta_3
-    dL_dWh = output_layer*delta_2
+    delta_1 = np.transpose(y_predict-trainTarget)
+    dL_dWo = delta_1@hidden_layer_activation
+    dL_dWo = np.transpose(dL_dWo)
+    
+    delta_2 = np.dot(np.transpose(delta_1)@np.transpose(weight_output), relu_grad(hidden_layer_activation)) #10000x1000
+    delta_2 = np.transpose(delta_2)
+    dL_dWh = delta_2@trainData #1000x784
+    dL_dWh = np.transpose(dL_dWh)
+
     
     return dL_dWo, dL_dWh
     
@@ -141,7 +147,7 @@ def frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_
     y_predict = output_layer_activation
     loss = CE(trainTarget, y_predict)
     
-    return loss, y_predict, output_layer, hidden_layer
+    return loss, y_predict, output_layer, hidden_layer, hidden_layer_activation
     
 
 def main():
