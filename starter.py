@@ -80,7 +80,15 @@ def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output
     accuracy = 0
     
     
-    loss, y_predict = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+    loss, y_predict, output_layer, hidden_layer = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+    
+    delta_3 = gradCE(trainTarget, y_predict)*softmax_grad(y_predict)
+    delta_2 = delta_3*weight_hidden*relu_grad(hidden_layer)
+    
+    dL_dWo = y_predict*delta_3
+    dL_dWh = output_layer*delta_2
+    
+    
     return y_predict, loss, accuracy
 
 
@@ -96,7 +104,7 @@ def frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_
     y_predict = output_layer_activation
     loss = CE(trainTarget, y_predict)
     
-    return loss, y_predict
+    return loss, y_predict, output_layer, hidden_layer
     
 
 def main():
