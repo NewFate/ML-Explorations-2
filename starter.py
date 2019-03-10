@@ -76,29 +76,66 @@ def gradCE(target, prediction):
 
 
 def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output, epochs):
+    #v matrices
+    v_hidden = np.ones((784, 1000))*1e-5
+    v_output = np.ones((1000, 10))*1e-5
+    
+    lamda = 0.9
+    alpha = 0.01
+    
     #Accuracy need to complete
     accuracy = 0
     
+    #iterations
+    i = 0
     
-    loss, y_predict, output_layer, hidden_layer = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+    while i < epochs:
+        
+        #Run front propagation
+        loss, y_predict, output_layer, hidden_layer = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+        
+        print("Loss: ",loss)
     
+        dL_dWo, dL_dWh = backPropagation(trainTarget, y_predict, output_layer, hidden_layer, weight_output)
+        
+        #Momentum based updates
+        
+        #Update hidden layer weight
+        v_hidden = lamda*v_hidden + alpha*dL_dWh
+        weight_hidden = weight_hidden - v_hidden
+        
+        #Update output layer weight
+        v_output = lamda*v_output + alpha*dL_dWo
+        weight_output = weight_output - v_output
+
+        i += 1
+    
+    return y_predict, loss, accuracy
+
+
+def backPropagation(trainTarget, y_predict, output_layer, hidden_layer, weight_hidden):
+    
+    #Calculate the deltas
     delta_3 = gradCE(trainTarget, y_predict)*softmax_grad(y_predict)
     delta_2 = delta_3*weight_hidden*relu_grad(hidden_layer)
     
+    #Calculate the partial derivatives
     dL_dWo = y_predict*delta_3
     dL_dWh = output_layer*delta_2
     
+    return dL_dWo, dL_dWh
     
-    return y_predict, loss, accuracy
 
 
 def frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output):
     #Hidden layer computation
     hidden_layer = computeLayer(trainData, weight_hidden, bias_hidden)
+    print("Hidden layer shape: ",hidden_layer.shape)
     hidden_layer_activation = relu(hidden_layer)
     
     #Ouput layer computation
     output_layer = computeLayer(hidden_layer_activation, weight_output, bias_output)
+    print("Output layer shape: ",output_layer.shape)
     output_layer_activation = softmax(output_layer)
     
     y_predict = output_layer_activation
@@ -159,7 +196,8 @@ def main():
     #print(b_output)
     
     #Gradient Descent with momentum
-    y_predict, loss, accuracy = gradientDescentMomentum(trainData, trainTarget, w_hidden, w_output, b_hidden, b_output)
+    y_predict, loss, accuracy = gradientDescentMomentum(trainData, trainTarget, w_hidden, w_output, b_hidden, b_output, 200)
+    print("Finished")
     print(loss)
     
     
