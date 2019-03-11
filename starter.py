@@ -52,8 +52,12 @@ def relu_grad(x):
     x[x>0] = 1
     return x
 
-def softmax(z):
-	return np.exp(z) / np.sum(np.exp(z), axis=1, keepdims=True)
+def softmax(x):
+    for i in range(x.shape[0]):
+        x[i] = np.exp(x[i] - np.max(x[i]))
+        e_x_sum = np.sum(x[i])
+        x[i] = x[i] / e_x_sum
+    return x # only difference
 
 def softmax_grad(softmax):
     # Reshape the 1-d softmax to 2-d so that np.dot will do the matrix multiplication
@@ -67,7 +71,7 @@ def computeLayer(X, W, b):
 
 
 def CE(target, prediction):
-    #prediction = softmax(prediction)
+    prediction = softmax(prediction)
     log_likelihood = np.log(prediction)
     loss = -np.sum(log_likelihood*target) / target.shape[0]
     return loss
@@ -78,10 +82,21 @@ def gradCE(target, prediction):
 	return -1/(target.size)*np.sum(1/np.dot(prediction*target))
 
 
-def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output, epochs):
+def find_accuracy(target, prediction):
+    correct_classification = 0
+    target_length = target.shape[0]
+    for i in range(target_length):
+        max_predict = np.argmax(prediction[i], axis=0)
+        max_label = np.argmax(target[i], axis=0)
+        if(max_predict == max_label):
+            correct_classification += 1
+    return correct_classification/target_length
+
+
+def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output, epochs, hidden_unit_size):
     #v matrices
-    v_hidden = np.ones((784, 1000))*1e-5
-    v_output = np.ones((1000, 10))*1e-5
+    v_hidden = np.ones((784, hidden_unit_size))*1e-5
+    v_output = np.ones((hidden_unit_size, 10))*1e-5
     
     lamda = 0.9
     alpha = 0.0001
@@ -94,15 +109,17 @@ def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output
     
     #Loss values
     loss_list = []
+    accuracy_list = []
     
     while i < epochs:
         
         #Run front propagation
-        loss, y_predict, hidden_layer_activation = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+        loss, accuracy, y_predict, hidden_layer_activation = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
         
-        print("Iteration: ",i, "Loss: ",loss)
+        print("Iteration: ",i, "Loss: ",loss, "Accuracy: ",accuracy)
         
         loss_list.append(loss)
+        accuracy_list.append(accuracy)
     
         dL_dWo, dL_dWh = backPropagation(trainData, trainTarget, y_predict, hidden_layer_activation, weight_output)
         
@@ -122,7 +139,11 @@ def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output
 
         i += 1
     
-    plt.plot(loss_list)
+    plt.figure(1)
+    plt.plot(loss_list, label=hidden_unit_size)
+    
+    plt.figure(2)
+    plt.plot(accuracy_list, label=hidden_unit_size)
     
     return y_predict, loss_list, accuracy
 
@@ -165,8 +186,9 @@ def frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_
     y_predict = output_layer_activation
     #print(y_predict)
     loss = CE(trainTarget, y_predict)
+    accuracy = find_accuracy(trainTarget, y_predict)
     
-    return loss, y_predict, hidden_layer_activation
+    return loss, accuracy, y_predict, hidden_layer_activation
     
 
 def main():
@@ -195,34 +217,37 @@ def main():
     
     #neural network
     
+    hidden_unit = [100, 500, 2000]
     #Hidden layer
     
     #Hidden layer weight initialisation
-    units_in = 784
-    units_out = 1000
-    w_hidden = np.random.randn(784, 1000)*np.sqrt(2/(units_in+units_out))
-    #w_hidden = w_hidden.reshape(784, 1000)
-    #print(w_hidden)
     
-    #Hidden layer bias iniatilisation
-    b_hidden = np.ones((1, 1000))
-    
-    #Ouput layer
-     
-    #Output layer weight initialization
-    units_in = 1000
-    units_out = 10
-    w_output = np.random.randn(1000, 10)*np.sqrt(2/(units_in+units_out))
-    #w_output = w_output.reshape(1000, 10)
-    #print(w_output)
-    
-    #Output layer bias initialization
-    b_output = np.ones((1, 10))
-    #print(b_output)
-    
-    #Gradient Descent with momentum
-    y_predict, loss_list, accuracy = gradientDescentMomentum(trainData, trainTarget, w_hidden, w_output, b_hidden, b_output, 200)
-    print("Finished")
+    for hidden_unit_size in hidden_unit:
+        units_in = 784
+        units_out = hidden_unit_size
+        w_hidden = np.random.randn(784, hidden_unit_size)*np.sqrt(2/(units_in+units_out))
+        #w_hidden = w_hidden.reshape(784, 1000)
+        #print(w_hidden)
+        
+        #Hidden layer bias iniatilisation
+        b_hidden = np.ones((1, hidden_unit_size))
+        
+        #Ouput layer
+         
+        #Output layer weight initialization
+        units_in = hidden_unit_size
+        units_out = 10
+        w_output = np.random.randn(hidden_unit_size, 10)*np.sqrt(2/(units_in+units_out))
+        #w_output = w_output.reshape(1000, 10)
+        #print(w_output)
+        
+        #Output layer bias initialization
+        b_output = np.ones((1, 10))
+        #print(b_output)
+        
+        #Gradient Descent with momentum
+        y_predict, loss_list, accuracy = gradientDescentMomentum(trainData, trainTarget, w_hidden, w_output, b_hidden, b_output, 200, hidden_unit_size)
+        print("Finished")
 
     
     
