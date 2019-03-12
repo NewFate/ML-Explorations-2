@@ -365,7 +365,7 @@ def main():
         #print(b_output)
         
         #Gradient Descent with momentum
-        train_loss_list, train_accuracy_list, valid_loss_list, valid_accuracy_list, test_loss_list, test_accuracy_list = gradientDescentMomentum(trainData, trainTarget, validData, validTarget, testData, testTarget, w_hidden, w_output, b_hidden, b_output, 20, hidden_unit_size)
+        train_loss_list, train_accuracy_list, valid_loss_list, valid_accuracy_list, test_loss_list, test_accuracy_list = gradientDescentMomentum(trainData, trainTarget, validData, validTarget, testData, testTarget, w_hidden, w_output, b_hidden, b_output, 0, hidden_unit_size)
         
         plot_loss_different_hidden_unit_size(train_loss_list, valid_loss_list, test_loss_list, figure_number, hidden_unit_size)
         figure_number +=1
@@ -441,10 +441,25 @@ def main():
         correct_prediction = tf.equal(y_pred_cls, y_true_cls)
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
         
-    num_epochs = 0
+    num_epochs = 5
     batch_size = 32
     train_accuracy_list = []
     train_loss_list = []
+    
+    valid_accuracy_list = []
+    valid_loss_list = []
+    
+    test_accuracy_list = []
+    test_loss_list = []
+    
+    batch_train_accuracy = []
+    batch_train_loss = []
+            
+    batch_valid_loss = []
+    batch_valid_accuracy = []
+            
+    batch_test_loss = []
+    batch_test_accuracy = []
     
     with tf.Session() as sess:
         # Initialize all variables
@@ -452,8 +467,8 @@ def main():
         
         # Loop over number of epochs
         for epoch in range(num_epochs):
-            batch_train_accuracy = []
-            batch_train_loss = [] 
+
+            
             
             # Shuffle trainData and trainTarget
             trainData, trainTarget = shuffle(trainData, trainTarget)
@@ -468,29 +483,48 @@ def main():
                 # Run the optimizer using this batch of training data.
                 sess.run(optimizer, feed_dict=feed_dict_train)
                 
-                # Calculate the accuracy on the batch of training data
-                batch_train_accuracy.append(sess.run(accuracy, feed_dict=feed_dict_train))
-
+                # Calculate the loss and accuracy on the batch of training data
+                #batch_train_accuracy.append(sess.run(accuracy, feed_dict=feed_dict_train))
+                train_loss, train_accuracy = sess.run([cost, accuracy], feed_dict=feed_dict_train)
+                #valid_loss, valid_accuracy = sess.run([cost, accuracy], feed_dict={x: validData, y_true: validTarget})
+                #test_loss, test_accuracy = sess.run([cost, accuracy], feed_dict={x: testData, y_true: testTarget})
                 
-                # Calulate the loss on the batch of training data
-                batch_train_loss.append(sess.run(cost, feed_dict=feed_dict_train))
-                #print("Batch Loss: ", train_loss)
-                #print("Batch Accuracy: ", train_accuracy)
+                batch_train_loss.append(train_loss)
+                batch_train_accuracy.append(train_accuracy)
                 
-                #print(train_loss_list)
+                #batch_valid_loss.append(valid_loss)
+                #batch_valid_accuracy.append(valid_accuracy)
+                
+                #batch_test_loss.append(test_loss)
+                #batch_test_accuracy.append(test_accuracy)
+                
             
               
             train_accuracy_mean = np.mean(batch_train_accuracy)
             train_loss_mean = np.mean(batch_train_loss)
-
             
             train_accuracy_list.append(train_accuracy_mean)
             train_loss_list.append(train_loss_mean)
             
+            #valid_accuracy_mean = np.mean(batch_valid_accuracy)
+            #valid_loss_mean = np.mean(batch_valid_loss)
             
-            print("Accuracy: ", train_accuracy_mean, "Loss: ", train_loss_mean)
-                        
-    
+            #valid_accuracy_list.append(valid_accuracy_mean)
+            #valid_loss_list.append(valid_loss_mean)
+            
+            #test_accuracy_mean = np.mean(batch_test_accuracy)
+            #test_loss_mean = np.mean(batch_test_loss)
+            
+            #test_accuracy_list.append(test_accuracy_mean)
+            #test_loss_list.append(test_loss_mean)
+        
+            
+            print("Train Accuracy: ", train_accuracy_mean, "Train Loss: ", train_loss_mean)
+            #print("Valid Accuracy: ", train_accuracy_mean, "Valid Loss: ", train_loss_mean)
+            #print("Test Accuracy: ", train_accuracy_mean, "Test Loss: ", train_loss_mean)
+
+        valid_loss, valid_accuracy = sess.run([cost, accuracy], feed_dict={x: validData, y_true: validTarget})
+        test_loss, test_accuracy = sess.run([cost, accuracy], feed_dict={x: testData, y_true: testTarget})
 
     
 if __name__ == "__main__":
