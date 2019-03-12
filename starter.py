@@ -93,7 +93,7 @@ def find_accuracy(target, prediction):
     return correct_classification/target_length
 
 
-def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output, epochs, hidden_unit_size):
+def gradientDescentMomentum(trainData, trainTarget, validData, validTarget, testData, testTarget, weight_hidden, weight_output, bias_hidden, bias_output, epochs, hidden_unit_size):
     #v matrices
     v_hidden = np.ones((784, hidden_unit_size))*1e-5
     v_output = np.ones((hidden_unit_size, 10))*1e-5
@@ -108,20 +108,33 @@ def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output
     i = 0
     
     #Loss values
-    loss_list = []
-    accuracy_list = []
+    train_loss_list = []
+    train_accuracy_list = []
+    valid_loss_list = []
+    valid_accuracy_list = []
+    test_loss_list = []
+    test_accuracy_list = []
     
     while i < epochs:
         
         #Run front propagation
-        loss, accuracy, y_predict, hidden_layer_activation = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+        loss_train, accuracy_train, y_predict_train, hidden_layer_activation_train = frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+        loss_valid, accuracy_valid, y_predict_valid, hidden_layer_activation_valid = frontPropagation(validData, validTarget, weight_hidden, weight_output, bias_hidden, bias_output)
+        loss_test, accuracy_test, y_predict_test, hidden_layer_activation_test = frontPropagation(testData, testTarget, weight_hidden, weight_output, bias_hidden, bias_output)
         
-        print("Iteration: ",i, "Loss: ",loss, "Accuracy: ",accuracy)
+        print("Iteration: ",i, "Train Loss: ",loss_train, "Validation Loss: ",loss_valid, "Test Loss: ",loss_test)
+        print("Train Accuracy: ",accuracy_train, "Valid Accuracy: ",accuracy_valid, "Test Accuracy: ",accuracy_test)
         
-        loss_list.append(loss)
-        accuracy_list.append(accuracy)
+        train_loss_list.append(loss_train)
+        train_accuracy_list.append(accuracy_train)
+        
+        valid_loss_list.append(loss_valid)
+        valid_accuracy_list.append(accuracy_valid)
+        
+        test_loss_list.append(loss_test)
+        test_accuracy_list.append(accuracy_test)
     
-        dL_dWo, dL_dWh = backPropagation(trainData, trainTarget, y_predict, hidden_layer_activation, weight_output)
+        dL_dWo, dL_dWh = backPropagation(trainData, trainTarget, y_predict_train, hidden_layer_activation_train, weight_output)
         
         #Momentum based updates
         
@@ -140,12 +153,12 @@ def gradientDescentMomentum(trainData, trainTarget, weight_hidden, weight_output
         i += 1
     
     plt.figure(1)
-    plt.plot(loss_list, label=hidden_unit_size)
+    plt.plot(train_loss_list, label=hidden_unit_size)
     
     plt.figure(2)
-    plt.plot(accuracy_list, label=hidden_unit_size)
+    plt.plot(train_accuracy_list, label=hidden_unit_size)
     
-    return y_predict, loss_list, accuracy, weight_hidden, weight_output
+    return y_predict, train_loss_list, accuracy, weight_hidden, weight_output
 
 
 def backPropagation(trainData, trainTarget, y_predict, hidden_layer_activation, weight_output):
@@ -328,11 +341,7 @@ def main():
         #print(b_output)
         
         #Gradient Descent with momentum
-        y_predict, loss_list, accuracy, weight_hidden, weight_output = gradientDescentMomentum(trainData, trainTarget, w_hidden, w_output, b_hidden, b_output, 200, hidden_unit_size)
-        valid_loss, accuracy, y_predict, hidden_layer_activation = frontPropagation(validData, validTarget, weight_hidden, weight_output, b_hidden, b_output)
-        print("Test loss: ", valid_loss)
-        test_loss, accuracy, y_predict, hidden_layer_activation = frontPropagation(testData, testTarget, weight_hidden, weight_output, b_hidden, b_output)
-        print("Test loss: ", test_loss)
+        y_predict, loss_list, accuracy, weight_hidden, weight_output = gradientDescentMomentum(trainData, trainTarget, validData, validTarget, testData, testTarget, w_hidden, w_output, b_hidden, b_output, 200, hidden_unit_size)
         print("Finished")
 
     
