@@ -5,6 +5,9 @@ import time
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+# Global Variable
+figure_number = 0
+
 # Load the data
 def loadData():
     with np.load("notMNIST.npz") as data:
@@ -79,7 +82,7 @@ def CE(target, prediction):
     
 def gradCE(target, prediction):
 	#print("Here0")
-	return -1/(target.size)*np.sum(1/np.dot(prediction*target))
+	return -1/(target.shape[0])*np.sum(1/np.dot(prediction, target))
 
 
 def find_accuracy(target, prediction):
@@ -152,13 +155,8 @@ def gradientDescentMomentum(trainData, trainTarget, validData, validTarget, test
 
         i += 1
     
-    plt.figure(1)
-    plt.plot(train_loss_list, label=hidden_unit_size)
     
-    plt.figure(2)
-    plt.plot(train_accuracy_list, label=hidden_unit_size)
-    
-    return y_predict, train_loss_list, accuracy, weight_hidden, weight_output
+    return train_loss_list, train_accuracy_list, valid_loss_list, valid_accuracy_list, test_loss_list, test_accuracy_list
 
 
 def backPropagation(trainData, trainTarget, y_predict, hidden_layer_activation, weight_output):
@@ -204,6 +202,31 @@ def frontPropagation(trainData, trainTarget, weight_hidden, weight_output, bias_
     accuracy = find_accuracy(trainTarget, y_predict)
     
     return loss, accuracy, y_predict, hidden_layer_activation
+
+
+
+def plot_loss_different_hidden_unit_size(train_loss_list, valid_loss_list, test_loss_list, figure_number, hidden_unit_size):
+    # Plot the loss graphs for train, validation and test sets
+    plt.figure(figure_number)
+    plt.plot(train_loss_list, c='b', label=hidden_unit_size)
+    plt.plot(valid_loss_list, c='r', label=hidden_unit_size)
+    plt.plot(test_loss_list, c='g', label=hidden_unit_size)
+    plt.grid()
+    plt.legend(loc='best')
+    plt.xlabel('Iteration')
+    plt.ylabel('LOSS (Varying Hidden Unit Size)')
+    
+    
+def plot_accuracy_different_hidden_unit_size(train_accuracy_list, valid_accuracy_list, test_accuracy_list, figure_number, hidden_unit_size):
+    # Plot the loss graphs for train, validation and test sets
+    plt.figure(figure_number)
+    plt.plot(train_accuracy_list, c='b', label=hidden_unit_size)
+    plt.plot(valid_accuracy_list, c='r', label=hidden_unit_size)
+    plt.plot(test_accuracy_list, c='g', label=hidden_unit_size)
+    plt.grid()
+    plt.legend(loc='best')
+    plt.xlabel('Iteration')
+    plt.ylabel('Accuracy (Varying Hidden Unit Size)')
 
 
     ########End of Neural Network#####
@@ -312,10 +335,11 @@ def main():
     
     #neural network
     
-    hidden_unit = [100, 500, 2000]
+    hidden_unit = [1000, 100, 500, 2000]
     #Hidden layer
     
     #Hidden layer weight initialisation
+    figure_number = 1
     
     for hidden_unit_size in hidden_unit:
         units_in = 784
@@ -341,7 +365,14 @@ def main():
         #print(b_output)
         
         #Gradient Descent with momentum
-        y_predict, loss_list, accuracy, weight_hidden, weight_output = gradientDescentMomentum(trainData, trainTarget, validData, validTarget, testData, testTarget, w_hidden, w_output, b_hidden, b_output, 200, hidden_unit_size)
+        train_loss_list, train_accuracy_list, valid_loss_list, valid_accuracy_list, test_loss_list, test_accuracy_list = gradientDescentMomentum(trainData, trainTarget, validData, validTarget, testData, testTarget, w_hidden, w_output, b_hidden, b_output, 20, hidden_unit_size)
+        
+        plot_loss_different_hidden_unit_size(train_loss_list, valid_loss_list, test_loss_list, figure_number, hidden_unit_size)
+        figure_number +=1
+        
+        plot_accuracy_different_hidden_unit_size(train_accuracy_list, valid_accuracy_list, test_accuracy_list, figure_number, hidden_unit_size)
+        figure_number +=1
+        
         print("Finished")
 
     
